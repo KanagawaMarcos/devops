@@ -81,7 +81,7 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
-
+  programs.nix-ld.enable = true;
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.kanagawamarcos = {
     isNormalUser = true;
@@ -89,14 +89,21 @@
     extraGroups = [ "networkmanager" "wheel" "uucp" "dialout" ];
     packages = with pkgs; [
 	kdePackages.kate
+	unetbootin	
+	stdenv.cc.cc
+	zlib
+	kdePackages.isoimagewriter
+	openssl
+	libgcc
         thunderbird
         orca-slicer
         obs-studio
 	xclip
+	git-lfs
 	git
         #teams
         discord
-        steam
+        #steam
         code-cursor
         # epson software + drivers
         # Focus Rite Studio 
@@ -128,8 +135,25 @@
         orca-slicer
 	kicad
 	vscode
+	mangohud
+	protonup-ng
+	lutris
+	heroic
+	bottles
+	godot
     ];
   };
+
+  programs.steam.enable = true;
+  programs.steam.gamescopeSession.enable = true;
+  programs.gamemode.enable = true;
+
+  environment.sessionVariables = {
+    STEAM_EXTRA_COMPAT_TOOLS_PATHS =
+      "\${HOME}/.steam/root/compatibilitytools.d";
+  };
+
+
 
   # Install firefox.
   programs.firefox.enable = true;
@@ -174,4 +198,26 @@
     IdleAction = "ignore";
     IdleActionSec = "infinity";
   };
+  
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
+
+  # Gaming
+
+  services.xserver.videoDrivers = [ "nvidia" ];
+
+  hardware.nvidia = {
+    open = true;
+    modesetting.enable = true;
+    nvidiaSettings = true;
+    powerManagement.enable = true;
+  };
+
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
+
 }
