@@ -1,223 +1,270 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
+# ============================================================
+# NixOS main system configuration
+# File: /etc/nixos/configuration.nix
+#
+# Este arquivo define TODO o estado do sistema operacional:
+# boot, drivers, desktop, usuários, pacotes, serviços, etc.
+#
+# Qualquer mudança aqui só tem efeito após:
+#   sudo nixos-rebuild switch
+# ============================================================
 
 { config, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  # ==========================================================
+  # IMPORTS
+  # ==========================================================
+  # Importa a configuração gerada automaticamente com base
+  # no hardware detectado (discos, GPU, CPU, etc.)
+  imports = [
+    ./hardware-configuration.nix
+  ];
 
-  # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  # ==========================================================
+  # BOOTLOADER (UEFI + systemd-boot + GRUB compat)
+  # ==========================================================
+  boot.loader = {
+    systemd-boot.enable = true;           # Bootloader padrão do NixOS
+    efi.canTouchEfiVariables = true;       # Permite gravar variáveis EFI
 
-  networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+    grub = {
+      devices = [ "nodev" ];              # Necessário para UEFI puro
+      efiSupport = true;                  # Suporte a EFI
+      useOSProber = true;                 # Detecta outros SOs
+      theme = "light";                    # Tema visual do GRUB
+    };
+  };
 
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+  # ==========================================================
+  # NETWORKING
+  # ==========================================================
+  networking = {
+    hostName = "nixos";                   # Hostname da máquina
 
-  # Enable networking
-  networking.networkmanager.enable = true;
+    # Gerenciador de rede (Wi-Fi, Ethernet, VPNs, etc.)
+    networkmanager.enable = true;
 
-  # Set your time zone.
+    # Exemplo de proxy (desativado)
+    # proxy.default = "http://user:password@proxy:port/";
+    # proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+  };
+
+  # ==========================================================
+  # TIMEZONE & LOCALE
+  # ==========================================================
   time.timeZone = "America/Fortaleza";
 
-  # Select internationalisation properties.
+  # Locale padrão do sistema
   i18n.defaultLocale = "en_US.UTF-8";
 
+  # Locale específico para formatos brasileiros
   i18n.extraLocaleSettings = {
-    LC_ADDRESS = "pt_BR.UTF-8";
-    LC_IDENTIFICATION = "pt_BR.UTF-8";
-    LC_MEASUREMENT = "pt_BR.UTF-8";
-    LC_MONETARY = "pt_BR.UTF-8";
-    LC_NAME = "pt_BR.UTF-8";
-    LC_NUMERIC = "pt_BR.UTF-8";
-    LC_PAPER = "pt_BR.UTF-8";
-    LC_TELEPHONE = "pt_BR.UTF-8";
-    LC_TIME = "pt_BR.UTF-8";
+    LC_ADDRESS       = "pt_BR.UTF-8";
+    LC_IDENTIFICATION= "pt_BR.UTF-8";
+    LC_MEASUREMENT   = "pt_BR.UTF-8";
+    LC_MONETARY      = "pt_BR.UTF-8";
+    LC_NAME          = "pt_BR.UTF-8";
+    LC_NUMERIC       = "pt_BR.UTF-8";
+    LC_PAPER         = "pt_BR.UTF-8";
+    LC_TELEPHONE     = "pt_BR.UTF-8";
+    LC_TIME          = "pt_BR.UTF-8";
   };
 
-  # Enable the X11 windowing system.
-  # You can disable this if you're only using the Wayland session.
-  services.xserver.enable = true;
+  # ==========================================================
+  # DISPLAY SERVER & DESKTOP
+  # ==========================================================
+  services.xserver = {
+    enable = true;                        # Ativa X11 (necessário mesmo com Wayland)
 
-  # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.sddm.enable = true;
+    # Layout de teclado no X11
+    xkb = {
+      layout = "br";
+      variant = "";
+    };
+
+    # Driver de vídeo
+    videoDrivers = [ "nvidia" ];
+  };
+
+  # KDE Plasma 6
   services.desktopManager.plasma6.enable = true;
 
-  # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "br";
-    variant = "";
+  # Display Manager (login gráfico)
+  services.displayManager.sddm = {
+    enable = true;
+    wayland.enable = true;                # Sessão Wayland ativa
   };
 
-  # Configure console keymap
+  # Teclado do console (TTY)
   console.keyMap = "br-abnt2";
 
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
+  # ==========================================================
+  # NVIDIA GPU
+  # ==========================================================
+  hardware.nvidia = {
+    open = true;                          # Driver open kernel module
+    modesetting.enable = true;            # Necessário para Wayland
+    nvidiaSettings = true;                # Painel nvidia-settings
+    powerManagement.enable = false;
+  };
 
-  # Enable sound with pipewire.
-  services.pulseaudio.enable = false;
-  security.rtkit.enable = true;
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;                   # Necessário para jogos (Steam/Proton)
+  };
+
+  # ==========================================================
+  # AUDIO (PipeWire)
+  # ==========================================================
+  services.pulseaudio.enable = false;     # Desativa PulseAudio antigo
+  security.rtkit.enable = true;           # Prioridade realtime para áudio
+
   services.pipewire = {
     enable = true;
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
+    # jack.enable = true;                 # Descomentar se usar JACK
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
+  # ==========================================================
+  # POWER MANAGEMENT & LID BEHAVIOR
+  # ==========================================================
+  services.power-profiles-daemon.enable = false;
 
-  programs.nix-ld.enable = true;
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.kanagawamarcos = {
-    isNormalUser = true;
-    description = "Marcos Kanagawa";
-    extraGroups = [ "networkmanager" "wheel" "uucp" "dialout" ];
-    packages = with pkgs; [
-	kdePackages.kate
-	unetbootin	
-	stdenv.cc.cc
-	zlib
-	kdePackages.isoimagewriter
-	openssl
-	libgcc
-        thunderbird
-        orca-slicer
-        obs-studio
-	xclip
-	git-lfs
-	git
-        #teams
-        discord
-        #steam
-        code-cursor
-        # epson software + drivers
-        # Focus Rite Studio 
-        libreoffice
-        docker
-        inkscape-with-extensions
-        bambu-studio
-        transmission_4
-        jetbrains.rider  
-        arduino-ide
-        python3
-        android-studio
-        android-studio-tools
-        dotnetCorePackages.sdk_9_0-bin
-        nodejs
-        emacs
-        vim
-        gimp-with-plugins
-        rustc
-        rustup
-        rustfmt
-        cargo
-        telegram-desktop
-        signal-desktop
-        blender
-        bruno
-        freecad
-        easyeda2kicad
-        orca-slicer
-	kicad
-	vscode
-	mangohud
-	protonup-ng
-	lutris
-	heroic
-	bottles
-	godot
-    ];
+  services.logind = {
+    lidSwitch = "ignore";                 # Não suspende ao fechar tampa
+    lidSwitchExternalPower = "ignore";
+    lidSwitchDocked = "ignore";
   };
 
-  programs.steam.enable = true;
-  programs.steam.gamescopeSession.enable = true;
-  programs.gamemode.enable = true;
-
-  environment.sessionVariables = {
-    STEAM_EXTRA_COMPAT_TOOLS_PATHS =
-      "\${HOME}/.steam/root/compatibilitytools.d";
+  # ==========================================================
+  # PRINTING, SCANNING & NETWORK DISCOVERY
+  # ==========================================================
+  services.printing = {
+    enable = true;                        # CUPS
+    drivers = [ ];
   };
 
-
-
-  # Install firefox.
-  programs.firefox.enable = true;
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    wget
-  ];
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "25.11"; # Did you read the comment?
-  services.logind.settings.Login = {
-    IdleAction = "ignore";
-    IdleActionSec = "infinity";
+  services.avahi = {
+    enable = true;                        # mDNS / zeroconf
+    nssmdns4 = true;
+    openFirewall = true;
   };
-  
+
+  hardware.sane = {
+    enable = true;                        # Scanner
+    extraBackends = [ pkgs.sane-airscan ];
+  };
+
+  # ==========================================================
+  # NIX & COMPATIBILITY
+  # ==========================================================
+  programs.nix-ld.enable = true;          # Executar binários não-Nix
+
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
   ];
 
-  # Gaming
+  nixpkgs.config.allowUnfree = true;      # Permite software proprietário
 
-  services.xserver.videoDrivers = [ "nvidia" ];
+  # ==========================================================
+  # USER ACCOUNT
+  # ==========================================================
+  users.users.kanagawamarcos = {
+    isNormalUser = true;
+    description = "Marcos Kanagawa";
 
-  hardware.nvidia = {
-    open = true;
-    modesetting.enable = true;
-    nvidiaSettings = true;
-    powerManagement.enable = true;
+    extraGroups = [
+      "networkmanager"                   # Controle de rede
+      "wheel"                            # sudo
+      "uucp" "dialout"                   # Serial / Arduino
+    ];
+
+    packages = with pkgs; [
+      # === System / Dev ===
+      git git-lfs wget openssl zlib libgcc
+      docker nodejs python3
+      dotnetCorePackages.sdk_9_0-bin
+      rustc rustup cargo rustfmt
+      emacs vim vscode jetbrains.rider
+
+      # === Android / Embedded ===
+      android-studio android-studio-tools
+      arduino-ide
+
+      # === Design / CAD / Maker ===
+      inkscape-with-extensions
+      freecad kicad easyeda2kicad
+      blender krita gimp-with-plugins
+      bambu-studio orca-slicer
+      scribus
+
+      # === Media ===
+      obs-studio audacity lmms
+      kdePackages.kdenlive
+
+      # === Communication ===
+      thunderbird discord telegram-desktop signal-desktop
+      localsend
+
+      # === Gaming ===
+      mangohud protonup-ng lutris heroic bottles godot
+
+      # === Utilities ===
+      xclip mission-center
+      transmission_4
+      bruno
+
+      # === KDE ===
+      kdePackages.kate
+      kdePackages.isoimagewriter
+
+      # === Epson ===
+      epson_201207w
+      epson-escpr
+      epson-escpr2
+
+      # === Boot / Theme ===
+      sleek-grub-theme
+    ];
   };
 
-  hardware.graphics = {
+  # ==========================================================
+  # GAMING SYSTEM
+  # ==========================================================
+  programs.steam = {
     enable = true;
-    enable32Bit = true;
+    gamescopeSession.enable = true;
   };
 
+  programs.gamemode.enable = true;
+
+  # ==========================================================
+  # BROWSERS
+  # ==========================================================
+  programs.firefox.enable = true;
+
+  # ==========================================================
+  # ENVIRONMENT VARIABLES
+  # ==========================================================
+  environment.variables = {
+    GTK_ENABLE_PRIMARY_PASTE = "false";   # Tentativa de desativar middle-click paste
+  };
+
+  environment.sessionVariables = {
+    STEAM_EXTRA_COMPAT_TOOLS_PATHS =
+      "\${HOME}/.steam/root/compatibilitytools.d";
+
+    NIXOS_OZONE_WL = "1";                 # Melhor suporte Wayland
+    KWIN_DRM_USE_EGL_STREAMS = "0";       # Corrige NVIDIA + Wayland
+  };
+
+  # ==========================================================
+  # SYSTEM VERSION (NUNCA ALTERAR LEVEMENTE)
+  # ==========================================================
+  system.stateVersion = "25.11";
 }
+

@@ -1,0 +1,72 @@
+Beleza. Agora ficou **claríssimo** 👍
+Abaixo está **APENAS a documentação da solução do print**, **sem falar de configuration.nix**, **sem binário extra**, **sem NixOS declarativo**.
+É literalmente **documentar o que você já fez**.
+
+---
+
+## Como deixar o OrcaSlicer funcionando no NixOS (wrapper local)
+
+### Problema
+
+No NixOS, o OrcaSlicer pode abrir com a **tela branca** porque não consegue acessar corretamente as bibliotecas OpenGL do sistema. Isso acontece devido ao isolamento do ambiente Nix, e o erro ocorre de forma silenciosa: o aplicativo abre, mas não renderiza a interface.
+
+### Solução
+
+Executar o OrcaSlicer usando **nixGL em modo impuro (`--impure`)**, garantindo que as bibliotecas gráficas reais do sistema sejam injetadas no ambiente da aplicação.
+
+Para não precisar rodar o comando manualmente toda vez, usamos um **wrapper local** no `~/.local/bin`.
+
+---
+
+## Passos
+
+### 1️⃣ Criar o diretório de binários locais (se não existir)
+
+```bash
+mkdir -p ~/.local/bin
+```
+
+---
+
+### 2️⃣ Criar o wrapper do OrcaSlicer
+
+```bash
+nano ~/.local/bin/orca-slicer
+```
+
+Conteúdo do arquivo:
+
+```bash
+#!/usr/bin/env bash
+exec nix run github:guibou/nixGL --impure -- orca-slicer "$@"
+```
+
+---
+
+### 3️⃣ Tornar o arquivo executável
+
+```bash
+chmod +x ~/.local/bin/orca-slicer
+```
+
+---
+
+### 4️⃣ Usar normalmente
+
+```bash
+orca-slicer
+```
+
+Ou apontar o menu do KDE para esse comando.
+
+---
+
+## Resultado
+
+* O OrcaSlicer passa a abrir corretamente
+* A tela branca não aparece mais
+* Não é necessário alterar o `configuration.nix`
+* A solução é simples, local e imediata
+
+Essa abordagem resolve o problema de forma prática mantendo o setup atual intacto.
+
