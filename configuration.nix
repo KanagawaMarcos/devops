@@ -1,3 +1,4 @@
+
 # ============================================================
 # NixOS main system configuration
 # File: /etc/nixos/configuration.nix
@@ -190,6 +191,7 @@
       dotnetCorePackages.sdk_9_0-bin
       rustc rustup cargo rustfmt
       emacs vim vscode jetbrains.rider
+      claude-code chromium
 
       # === Android / Embedded ===
       android-studio android-studio-tools
@@ -217,6 +219,8 @@
       xclip mission-center
       transmission_4
       bruno
+      libreoffice
+      scribus
 
       # === KDE ===
       kdePackages.kate
@@ -267,4 +271,5 @@
   # ==========================================================
   system.stateVersion = "25.11";
 }
+
 
