@@ -201,8 +201,9 @@
       inkscape-with-extensions
       freecad kicad easyeda2kicad
       blender krita gimp-with-plugins
-      bambu-studio orca-slicer
-      scribus
+      orca-slicer
+      scribus code-cursor
+      mkcert pnpm
 
       # === Media ===
       obs-studio audacity lmms
