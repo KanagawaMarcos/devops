@@ -105,7 +105,7 @@
   # ==========================================================
   hardware.nvidia = {
     open = false;                          # Driver open kernel module
-    modesetting.enable = false;            # Necessário para Wayland
+    modesetting.enable = true;            # Necessário para Wayland
     nvidiaSettings = true;                # Painel nvidia-settings
     powerManagement.enable = false;
   };
