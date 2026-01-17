@@ -203,7 +203,7 @@
       blender krita gimp-with-plugins
       orca-slicer
       scribus code-cursor
-      mkcert pnpm
+      mkcert pnpm vlc
 
       # === Media ===
       obs-studio audacity lmms
