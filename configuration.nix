@@ -94,7 +94,7 @@
   # Display Manager (login gráfico)
   services.displayManager.sddm = {
     enable = true;
-    wayland.enable = true;                # Sessão Wayland ativa
+    wayland.enable = false;                # Sessão Wayland ativa
   };
 
   # Teclado do console (TTY)
@@ -104,15 +104,15 @@
   # NVIDIA GPU
   # ==========================================================
   hardware.nvidia = {
-    open = true;                          # Driver open kernel module
-    modesetting.enable = true;            # Necessário para Wayland
+    open = false;                          # Driver open kernel module
+    modesetting.enable = false;            # Necessário para Wayland
     nvidiaSettings = true;                # Painel nvidia-settings
     powerManagement.enable = false;
   };
 
   hardware.graphics = {
     enable = true;
-    enable32Bit = true;                   # Necessário para jogos (Steam/Proton)
+    enable32Bit = true;
   };
 
   # ==========================================================
@@ -134,10 +134,10 @@
   # ==========================================================
   services.power-profiles-daemon.enable = false;
 
-  services.logind = {
-    lidSwitch = "ignore";                 # Não suspende ao fechar tampa
-    lidSwitchExternalPower = "ignore";
-    lidSwitchDocked = "ignore";
+  services.logind.settings.Login = {
+    HandleLidSwitch = "ignore";                 # Não suspende ao fechar tampa
+    HandleLidSwitchExternalPower = "ignore";
+    HandleLidSwitchDocked = "ignore";
   };
 
   # ==========================================================
@@ -189,9 +189,11 @@
       git git-lfs wget openssl zlib libgcc
       docker nodejs python3
       dotnetCorePackages.sdk_9_0-bin
-      rustc rustup cargo rustfmt
+      rustc rustup
       emacs vim vscode jetbrains.rider
       claude-code chromium
+      pciutils
+      mesa-demos
 
       # === Android / Embedded ===
       android-studio android-studio-tools
@@ -204,6 +206,8 @@
       orca-slicer
       scribus code-cursor
       mkcert pnpm vlc
+      ffmpeg-full
+      #davinci-resolve-studio
 
       # === Media ===
       obs-studio audacity lmms
@@ -263,9 +267,10 @@
     STEAM_EXTRA_COMPAT_TOOLS_PATHS =
       "\${HOME}/.steam/root/compatibilitytools.d";
 
-    NIXOS_OZONE_WL = "1";                 # Melhor suporte Wayland
-    KWIN_DRM_USE_EGL_STREAMS = "0";       # Corrige NVIDIA + Wayland
+    #desativado para KDENLIVE funcionar #NIXOS_OZONE_WL = "1";                 # Melhor suporte Wayland
+    #desativado para kdenlive funcioncar #KWIN_DRM_USE_EGL_STREAMS = "0";       # Corrige NVIDIA + Wayland
   };
+
 
   # ==========================================================
   # SYSTEM VERSION (NUNCA ALTERAR LEVEMENTE)
