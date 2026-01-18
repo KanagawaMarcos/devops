@@ -194,24 +194,19 @@
       claude-code chromium
       pciutils
       mesa-demos
-
+      alsa-utils
       # === Android / Embedded ===
       android-studio android-studio-tools
       arduino-ide
 
       # === Design / CAD / Maker ===
-      inkscape-with-extensions
       freecad kicad easyeda2kicad
-      blender krita gimp-with-plugins
-      orca-slicer
-      scribus code-cursor
+      code-cursor
       mkcert pnpm vlc
       ffmpeg-full
-      #davinci-resolve-studio
 
       # === Media ===
-      obs-studio audacity lmms
-      kdePackages.kdenlive
+      lmms
 
       # === Communication ===
       thunderbird discord telegram-desktop signal-desktop
@@ -237,7 +232,7 @@
       epson-escpr2
 
       # === Boot / Theme ===
-      sleek-grub-theme
+      ollama
     ];
   };
 
