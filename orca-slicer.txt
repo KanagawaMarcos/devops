@@ -70,3 +70,9 @@ Ou apontar o menu do KDE para esse comando.
 
 Essa abordagem resolve o problema de forma prática mantendo o setup atual intacto.
 
+
+
+
+
+export NIXPKGS_ALLOW_UNFREE=1
+nix run github:guibou/nixGL --impure -- orca-slicer

@@ -233,6 +233,11 @@
 
       # === Boot / Theme ===
       ollama
+      #orca-slicer
+      (writeShellScriptBin "orca-slicer-fixed" ''
+       export GBM_BACKEND=dri
+       exec orca-slicer "$@"
+      '')
     ];
   };
 
@@ -256,6 +261,8 @@
   # ==========================================================
   environment.variables = {
     GTK_ENABLE_PRIMARY_PASTE = "false";   # Tentativa de desativar middle-click paste
+    #GBM_BACKEND = "dri";
+
   };
 
   environment.sessionVariables = {
