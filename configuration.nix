@@ -233,11 +233,8 @@
 
       # === Boot / Theme ===
       ollama
-      #orca-slicer
-      (writeShellScriptBin "orca-slicer-fixed" ''
-       export GBM_BACKEND=dri
-       exec orca-slicer "$@"
-      '')
+      orca-slicer
+      bambu-studio
     ];
   };
 
