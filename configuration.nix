@@ -231,10 +231,13 @@
       epson-escpr
       epson-escpr2
 
-      # === Boot / Theme ===
+      meerk40t
       ollama
       orca-slicer
-      bambu-studio
+      bambu-studio 
+      peazip
+      krita
+      inkscape
     ];
   };
 
@@ -258,7 +261,7 @@
   # ==========================================================
   environment.variables = {
     GTK_ENABLE_PRIMARY_PASTE = "false";   # Tentativa de desativar middle-click paste
-    #GBM_BACKEND = "dri";
+    #GBM_BACKEND = "dri"; if global crashs kde, should be passed only to bambu lab and orca slicer
 
   };
 
